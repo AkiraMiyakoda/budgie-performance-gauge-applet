@@ -1,0 +1,8 @@
+[Plugin]
+Module=performancegaugeapplet.so
+Name=Performance Gauge
+Description=CPU/Memory usage gauge
+Authors=Akira Miyakoda <akira.miyakoda@gmail.com>
+Copyright=Copyright © 2021 Akira Miyakoda
+Website=https://github.com/AkiraMiyakoda
+Icon=performance-gauge-applet-symbolic
