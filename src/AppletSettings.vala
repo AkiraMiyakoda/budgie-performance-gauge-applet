@@ -32,7 +32,6 @@ internal class AppletSettings : Gtk.Box
 
             this.combobox_monitor.append_text(_ ("CPU Usage"   ));
             this.combobox_monitor.append_text(_ ("Memory Usage"));
-            this.combobox_monitor.append_text(_ ("Temperature" ));
 
             var sensor_entry = (Gtk.Entry)this.combobox_monitor.get_child();
             sensor_entry.width_chars = 13;

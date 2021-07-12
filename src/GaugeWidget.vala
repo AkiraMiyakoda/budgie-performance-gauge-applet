@@ -3,7 +3,7 @@ namespace PerformanceGaugeApplet
 
 internal class GaugeWidget : Gtk.DrawingArea
 {
-    private const uint   REDRAW_INTERVAL    = 25;
+    private const uint   REDRAW_INTERVAL    = 50;
     private const double MAX_MOVEMENT       = 5.0;
     private const double FOREGROUND_OPACITY = 1.0;
     private const double BACKGROUND_OPACITY = 0.25;
