@@ -13,7 +13,7 @@ internal class GaugeWidget : Gtk.DrawingArea
 
     public GaugeWidget()
     {
-        this.set_size_request(18, 16);
+        this.set_size_request(20, 20);
         this.set_percent(0.0);
 
         Timeout.add_full(Priority.LOW, REDRAW_INTERVAL, redraw);
@@ -49,9 +49,9 @@ internal class GaugeWidget : Gtk.DrawingArea
         var width  = this.get_allocated_width();
         var height = this.get_allocated_height();
         var center_x = width  / 2.0;
-        var center_y = height / 2.0 * 1.1;
+        var center_y = height / 2.0 * 1.05;
         var line_width = double.min(width, height) / 4.5;
-        var radius = double.min(width, height) / 2.0 - line_width / 2.0;
+        var radius = double.min(width, height) / 2.0 - line_width / 2.0 - 1;
         var line_color = this.get_style_context().get_color(Gtk.StateFlags.ACTIVE);
 
         if (radian_upper != RADIAN_END) {
