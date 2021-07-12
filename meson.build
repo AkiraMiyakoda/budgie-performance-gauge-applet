@@ -10,7 +10,7 @@ project('budgie-hostname-applet',
     ],
     default_options: [
         'warning_level=3',
-        'werror=false'
+        'werror=true'
     ],
     version: '1.0.0',
     meson_version: '>= 0.40.0'
