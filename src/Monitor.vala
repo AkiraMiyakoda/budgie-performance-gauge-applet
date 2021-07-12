@@ -3,8 +3,8 @@ namespace PerformanceGaugeApplet
 
 internal class Monitor
 {
-    static uint prev_cpu_busy = 0;
-    static uint prev_cpu_idle = 0;
+    private static uint prev_cpu_busy = 0;
+    private static uint prev_cpu_idle = 0;
 
     static construct
     {
