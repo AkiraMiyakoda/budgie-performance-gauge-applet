@@ -3,7 +3,10 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-extern int get_mount_points_native(char[] buffer, size_t length);
+extern int get_mount_points_native(out unowned string buffer);
+
+extern void free_mount_points_native(string buffer);
+
 extern int get_storage_usage_native(string mout_point, out uint64 total, out uint64 used);
 
 namespace PerformanceGaugeApplet
@@ -121,13 +124,15 @@ internal class Monitor
 
     public static bool get_mount_points(out string[] mount_points)
     {
-        var buffer = new char[4096];
-        if (get_mount_points_native(buffer, buffer.length) == 0) {
+        unowned string buffer;
+        if (get_mount_points_native(out buffer) == 0) {
             mount_points = new string[0];
             return false;
         }
 
-        mount_points = ((string)buffer).split("\n");
+        mount_points = buffer.split("\n");
+        free_mount_points_native(buffer);
+
         return (mount_points.length != 0);
     }
 

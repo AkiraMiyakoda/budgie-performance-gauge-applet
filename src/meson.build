@@ -10,7 +10,7 @@ applet_cputemp_sources = [
     'AppletSettings.vala',
     'GaugeWidget.vala',
     'Monitor.vala',
-    'Utils.cpp',
+    'NativeUtils.cpp',
 ]
 
 applet_cputemp_deps = [

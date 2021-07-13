@@ -5,7 +5,6 @@
 
 #include <cmath>
 #include <cstdint>
-#include <cstdio>
 #include <cstring>
 #include <string>
 #include <mntent.h>
@@ -13,10 +12,11 @@
 
 extern "C" {
 
-int get_mount_points_native(char *buffer, size_t length)
+int get_mount_points_native(char **buffer)
 {
     // List all the mount points except for read-only or zero-capacity ones.
     std::string points;
+    points.reserve(256);
 
     FILE* file = ::setmntent("/etc/mtab", "r");
     if (!file) {
@@ -45,10 +45,15 @@ int get_mount_points_native(char *buffer, size_t length)
 
     points.pop_back();
 
-    // snprintf always null-terminate the buffer unlike strncpy.
-    ::snprintf(buffer, length, "%s", points.c_str());
+    *buffer = new char[ points.size() + 1 ];
+    ::strcpy(*buffer, points.c_str());
 
     return 1;
+}
+
+void free_mount_points_native(char *buffer)
+{
+    delete [] buffer;
 }
 
 int get_storage_usage_native(const char *mount_point, uint64_t *total, uint64_t *used)
