@@ -150,35 +150,18 @@ internal class Monitor
         total = 0;
         used  = 0;
 
-        string stdout;
-        string stderr;
-        int status;
-
-        try {
-            Process.spawn_command_line_sync("df '%s'".printf(mount_point), out stdout, out stderr, out status);
-        } catch (SpawnError e) {
+        Posix.statvfs stat;
+        if (Posix.statvfs_exec(mount_point, out stat) != 0) {
             return false;
         }
 
-        Regex regex;
-        try {
-            regex = new Regex("[0-9]+\\s+([0-9]+)\\s+([0-9]+)\\s+[0-9]+\\%\\s+.+$");
-        }
-        catch (RegexError e) {
-            return false;
-        }
+        total = (uint64)stat.f_blocks * stat.f_bsize;
+        used  = total - (uint64)stat.f_bfree * stat.f_bsize;
 
-        foreach (var line in stdout.split("\n")) {
-            MatchInfo m;
-            if (!regex.match(line, 0, out m)) {
-                continue;
-            }
+        total = (uint64)Math.round(total / 1024.0);
+        used  = (uint64)Math.round(used  / 1024.0);
 
-            used  = uint64.parse(m.fetch(1));
-            total = used + uint64.parse(m.fetch(2));
-        }
-
-        return (total != 0);
+        return true;
     }
 
     private static string read_entire_file(string path)

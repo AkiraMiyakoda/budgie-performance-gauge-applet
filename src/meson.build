@@ -25,6 +25,7 @@ shared_library(
     vala_args: [
         '--pkg', 'libpeas-1.0',
         '--pkg', 'gtk+-3.0',
+        '--pkg', 'posix',
     ],
     link_args: [
         '-lm',
