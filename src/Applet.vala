@@ -37,7 +37,8 @@ public class Applet : Budgie.Applet
     private Budgie.Popover popover;
     private unowned Budgie.PopoverManager manager;
 
-    public Applet(string uuid) {
+    public Applet(string uuid)
+    {
         Object(uuid: uuid);
 
         // Setup settings
@@ -140,31 +141,8 @@ public class Applet : Budgie.Applet
             return;
         }
 
-        var usage_unit = this.settings.get_int("usage-unit");
-        double unit_div;
-        string unit_label;
-        string tooltip_format;
-        switch (usage_unit) {
-        case USAGE_UNIT_KIB:
-            unit_div   = 1.0;
-            unit_label = "KiB";
-            tooltip_format = "%.0f / %.0f %s (%.1f%%)";
-            break;
-        case USAGE_UNIT_MIB:
-            unit_div   = 1024.0;
-            unit_label = "MiB";
-            tooltip_format = "%.1f / %.1f %s (%.1f%%)";
-            break;
-        default:
-            unit_div   = 1048576.0;
-            unit_label = "GiB";
-            tooltip_format = "%.1f / %.1f %s (%.1f %%)";
-            break;
-        }
-
-        var percent = used * 100.0 / total;
-        this.gauge_widget.set_percent(percent);
-        this.gauge_widget.set_tooltip_text(tooltip_format.printf(used / unit_div, total / unit_div, unit_label, percent));
+        this.gauge_widget.set_percent(used * 100.0 / total);
+        this.gauge_widget.set_tooltip_text(format_usage(used, total));
     }
 
     private void update_storage_gauge()
@@ -178,31 +156,22 @@ public class Applet : Budgie.Applet
             return;
         }
 
+        this.gauge_widget.set_percent(used * 100.0 / total);
+        this.gauge_widget.set_tooltip_text(mount_point + "\n" + format_usage(used, total));
+    }
+
+    private string format_usage(uint64 used, uint64 total)
+    {
         var usage_unit = this.settings.get_int("usage-unit");
-        double unit_div;
-        string unit_label;
-        string tooltip_format;
+
         switch (usage_unit) {
         case USAGE_UNIT_KIB:
-            unit_div   = 1.0;
-            unit_label = "KiB";
-            tooltip_format = "%s\n%.0f / %.0f %s (%.1f%%)";
-            break;
+            return "%llu / %llu KiB (%.1f%%)".printf(used, total, used * 100.0 / total);
         case USAGE_UNIT_MIB:
-            unit_div   = 1024.0;
-            unit_label = "MiB";
-            tooltip_format = "%s\n%.1f / %.1f %s (%.1f%%)";
-            break;
+            return "%.1f / %.1f MiB (%.1f%%)".printf(used / 1024.0, total / 1024.0, used * 100.0 / total);
         default:
-            unit_div   = 1048576.0;
-            unit_label = "GiB";
-            tooltip_format = "%s\n%.1f / %.1f %s (%.1f %%)";
-            break;
+            return "%.1f / %.1f GiB (%.1f%%)".printf(used / 1048576.0, total / 1048576.0, used * 100.0 / total);
         }
-
-        var percent = used * 100.0 / total;
-        this.gauge_widget.set_percent(percent);
-        this.gauge_widget.set_tooltip_text(tooltip_format.printf(mount_point, used / unit_div, total / unit_div, unit_label, percent));
     }
 
     public override void update_popovers(Budgie.PopoverManager? manager)
