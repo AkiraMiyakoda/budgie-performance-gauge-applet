@@ -15,9 +15,8 @@ extern "C" {
 
 int get_mount_points_native(char *buffer, size_t length)
 {
-    std::string points;
-
     // List all the mount points except for read-only or zero-capacity ones.
+    std::string points;
 
     FILE* file = ::setmntent("/etc/mtab", "r");
     if (!file) {
@@ -62,8 +61,8 @@ int get_storage_usage_native(const char *mount_point, uint64_t *total, uint64_t 
     auto total_bytes = stat.f_blocks * stat.f_bsize;
     auto used_bytes  = total_bytes - stat.f_bfree * stat.f_bsize;
 
-    *total = std::round(total_bytes / 1024.0);
-    *used  = std::round(used_bytes  / 1024.0);
+    *total = static_cast<uint64_t>(std::round(total_bytes / 1024.0));
+    *used  = static_cast<uint64_t>(std::round(used_bytes  / 1024.0));
 
     return 1;
 }
