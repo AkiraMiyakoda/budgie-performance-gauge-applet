@@ -127,7 +127,8 @@ public class Applet : Budgie.Applet
 
     private void update_memory_gauge()
     {
-        uint total, used;
+        uint64 total;
+        uint64 used;
         if (!Monitor.get_memory_usage(out total, out used)) {
             this.gauge_widget.set_percent(0.0);
             this.gauge_widget.set_tooltip_text(null);
@@ -164,7 +165,8 @@ public class Applet : Budgie.Applet
     private void update_storage_gauge()
     {
         var mount_point = this.settings.get_string("mount-point");
-        uint64 total, used;
+        uint64 total;
+        uint64 used;
         if (!Monitor.get_storage_usage(mount_point, out total, out used)) {
             this.gauge_widget.set_percent(0.0);
             this.gauge_widget.set_tooltip_text(null);

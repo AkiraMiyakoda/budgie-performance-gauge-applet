@@ -68,7 +68,7 @@ internal class Monitor
         return (busy != 0);
     }
 
-    public static bool get_memory_usage(out uint total, out uint used)
+    public static bool get_memory_usage(out uint64 total, out uint64 used)
     {
         total = 0;
         used  = 0;
@@ -78,35 +78,37 @@ internal class Monitor
             return false;
         }
 
-        {
-            var index = meminfo.index_of("MemTotal:");
-            if (index < 0) {
-                return false;
-            }
-
-            index = find_digit(meminfo, index + 9);
-            if (index < 0) {
-                return false;
-            }
-
-            total = uint.parse(meminfo.substring(index, 10));
+        Regex regex;
+        try {
+            regex = new Regex("^([A-Za-z]+)\\:\\s+([0-9]+)\\s+kB$");
+        }
+        catch (RegexError e) {
+            return false;
         }
 
-        {
-            var index = meminfo.index_of("MemFree:");
-            if (index < 0) {
-                return false;
+        uint64 mem_total = uint64.MAX;
+        uint64 mem_free  = uint64.MAX;
+        foreach (var line in meminfo.split("\n")) {
+            MatchInfo m;
+            if (!regex.match(line, 0, out m)) {
+                continue;
             }
 
-            index = find_digit(meminfo, index + 8);
-            if (index < 0) {
-                return false;
+            if (m.fetch(1) == "MemTotal") {
+                mem_total = uint64.parse(m.fetch(2));
+            }
+            else if (m.fetch(1) == "MemFree") {
+                mem_free = uint64.parse(m.fetch(2));
             }
 
-            used = total - uint.parse(meminfo.substring(index, 10));
+            if (mem_total != uint64.MAX && mem_free != uint64.MAX) {
+                total = mem_total;
+                used  = mem_total - mem_free;
+                return true;
+            }
         }
 
-        return true;
+        return false;
     }
 
     public static bool get_mount_points(out Array<string> mount_points)
@@ -194,18 +196,6 @@ internal class Monitor
 
         return builder.str;
     }
-
-    private static int find_digit(string haystack, int start_index = 0)
-    {
-        for (int i = start_index; i < haystack.length; ++i) {
-            if (haystack[i] >= '0' && haystack[i] <= '9') {
-                return i;
-            }
-        }
-
-        return -1;
-    }
-
 }
 
 }
