@@ -59,6 +59,7 @@ internal class AppletSettings : Gtk.Box
             this.spinbutton_interval.halign = Gtk.Align.END;
             this.spinbutton_interval.valign = Gtk.Align.CENTER;
             this.spinbutton_interval.can_focus = true;
+            this.spinbutton_interval.numeric = true;
 
             var box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, HORIZONTAL_SPACING);
             box.pack_start(label);
@@ -77,6 +78,7 @@ internal class AppletSettings : Gtk.Box
             this.combobox_memory_unit.halign = Gtk.Align.END;
             this.combobox_memory_unit.valign = Gtk.Align.CENTER;
             this.combobox_memory_unit.can_focus = false;
+            this.combobox_memory_unit.sensitive = false;
 
             this.combobox_memory_unit.append_text(_ ("KiB"));
             this.combobox_memory_unit.append_text(_ ("MiB"));
