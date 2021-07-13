@@ -25,10 +25,10 @@ public class Applet : Budgie.Applet
 
     private uint timer_id = 0;
 
-    private GLib.Settings? settings;
+    private Settings settings;
 
-    private Budgie.Popover? popover = null;
-    private unowned Budgie.PopoverManager? manager = null;
+    private Budgie.Popover popover = null;
+    private unowned Budgie.PopoverManager manager = null;
 
     public Applet(string uuid) {
         Object(uuid: uuid);

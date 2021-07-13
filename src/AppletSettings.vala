@@ -7,13 +7,13 @@ internal class AppletSettings : Gtk.Box
     const int HORIZONTAL_SPACING = 12;
     const int VERTICAL_SPACING   = 12;
 
-    private GLib.Settings? settings = null;
+    private Settings settings = null;
 
-    private Gtk.ComboBoxText? combobox_monitor;
-    private Gtk.SpinButton?   spinbutton_interval;
-    private Gtk.ComboBoxText? combobox_memory_unit;
+    private Gtk.ComboBoxText combobox_monitor;
+    private Gtk.SpinButton   spinbutton_interval;
+    private Gtk.ComboBoxText combobox_memory_unit;
 
-    public AppletSettings(Settings? settings)
+    public AppletSettings(Settings settings)
     {
         this.settings = settings;
 
