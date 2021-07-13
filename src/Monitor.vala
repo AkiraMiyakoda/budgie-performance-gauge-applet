@@ -3,12 +3,13 @@ namespace PerformanceGaugeApplet
 
 internal class Monitor
 {
-    private static uint prev_cpu_busy = 0;
-    private static uint prev_cpu_idle = 0;
+    private static uint64 prev_cpu_busy = 0;
+    private static uint64 prev_cpu_idle = 0;
 
     static construct
     {
-        uint busy, idle;
+        uint64 busy;
+        uint64 idle;
         if (get_latest_cpu_usage(out busy, out idle)) {
             prev_cpu_busy = busy;
             prev_cpu_idle = idle;
@@ -19,14 +20,14 @@ internal class Monitor
     {
         usage = 0.0;
 
-        uint latest_busy;
-        uint latest_idle;
+        uint64 latest_busy;
+        uint64 latest_idle;
         if (!get_latest_cpu_usage(out latest_busy, out latest_idle)) {
             return false;
         }
 
-        uint busy = latest_busy - prev_cpu_busy;
-        uint idle = latest_idle - prev_cpu_idle;
+        var busy = latest_busy - prev_cpu_busy;
+        var idle = latest_idle - prev_cpu_idle;
         usage = busy * 100.0 / (busy + idle);
 
         prev_cpu_busy = latest_busy;
@@ -35,7 +36,7 @@ internal class Monitor
         return true;
     }
 
-    private static bool get_latest_cpu_usage(out uint busy, out uint idle)
+    private static bool get_latest_cpu_usage(out uint64 busy, out uint64 idle)
     {
         busy = 0;
         idle = 0;
@@ -45,20 +46,26 @@ internal class Monitor
             return false;
         }
 
-        var index = find_digit(stat);
-        if (index < 0) {
+        Regex regex;
+        try {
+            regex = new Regex("^cpu\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+([0-9]+)\\s+");
+        }
+        catch (RegexError e) {
             return false;
         }
 
-        var values = stat.substring(index, 50).split(" ", 4);
-        if (values.length < 4) {
-            return false;
+        foreach (var line in stat.split("\n")) {
+            MatchInfo m;
+            if (!regex.match(line, 0, out m)) {
+                continue;
+            }
+
+            busy = uint64.parse(m.fetch(1)) + uint64.parse(m.fetch(2)) + uint64.parse(m.fetch(3));
+            idle = uint64.parse(m.fetch(4));
+            break;
         }
 
-        busy = uint.parse(values[0]) + uint.parse(values[1]) + uint.parse(values[2]);
-        idle = uint.parse(values[3]);
-
-        return true;
+        return (busy != 0);
     }
 
     public static bool get_memory_usage(out uint total, out uint used)
