@@ -18,13 +18,13 @@ int get_mount_points_native(char **buffer)
     std::string points;
     points.reserve(256);
 
-    FILE* file = ::setmntent("/etc/mtab", "r");
+    const auto file = ::setmntent("/etc/mtab", "r");
     if (!file) {
         return 0;
     }
 
     struct mntent *e;
-    while ((e = getmntent(file)) != NULL) {
+    while ((e = ::getmntent(file)) != nullptr) {
         struct statvfs64 stat;
         if (::statvfs64(e->mnt_dir, &stat) != 0) {
             continue;
@@ -63,8 +63,8 @@ int get_storage_usage_native(const char *mount_point, uint64_t *total, uint64_t 
         return 0;
     }
 
-    auto total_bytes = stat.f_blocks * stat.f_bsize;
-    auto used_bytes  = total_bytes - stat.f_bfree * stat.f_bsize;
+    const auto total_bytes = stat.f_blocks * stat.f_bsize;
+    const auto used_bytes  = total_bytes - stat.f_bfree * stat.f_bsize;
 
     *total = static_cast<uint64_t>(std::round(total_bytes / 1024.0));
     *used  = static_cast<uint64_t>(std::round(used_bytes  / 1024.0));
