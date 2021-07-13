@@ -3,14 +3,16 @@
 # This software is released under the MIT License.
 # https://opensource.org/licenses/MIT
 
-project('budgie-hostname-applet',
+project('budgie-performance-gauge-applet',
     [
         'vala',
-        'c'
+        'c',
+        'cpp'
     ],
     default_options: [
         'warning_level=3',
-        'werror=true'
+        'werror=true',
+        'cpp_std=c++17',
     ],
     version: '1.0.0',
     meson_version: '>= 0.40.0'

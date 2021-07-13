@@ -10,6 +10,7 @@ applet_cputemp_sources = [
     'AppletSettings.vala',
     'GaugeWidget.vala',
     'Monitor.vala',
+    'Utils.cpp',
 ]
 
 applet_cputemp_deps = [
@@ -25,7 +26,6 @@ shared_library(
     vala_args: [
         '--pkg', 'libpeas-1.0',
         '--pkg', 'gtk+-3.0',
-        '--pkg', 'posix',
     ],
     link_args: [
         '-lm',

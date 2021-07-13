@@ -140,7 +140,7 @@ internal class AppletSettings : Gtk.Box
     {
         this.combobox_mount_point.remove_all();
 
-        Array<string> mount_points;
+        string[] mount_points;
         if (!Monitor.get_mount_points(out mount_points)) {
             return;
         }
@@ -150,10 +150,10 @@ internal class AppletSettings : Gtk.Box
         var current_mount_point = this.settings.get_string("mount-point");
         int max_length = 0;
         for (int i = 0; i < mount_points.length; ++i) {
-            this.combobox_mount_point.append_text(mount_points.index(i));
-            max_length = int.max(max_length, mount_points.index(i).length);
+            this.combobox_mount_point.append_text(mount_points[i]);
+            max_length = int.max(max_length, mount_points[i].length);
 
-            if (mount_points.index(i) == current_mount_point) {
+            if (mount_points[i] == current_mount_point) {
                 this.combobox_mount_point.active = i;
             }
         }

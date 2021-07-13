@@ -3,6 +3,9 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
+extern int get_mount_points_native(char[] buffer, size_t length);
+extern int get_storage_usage_native(string mout_point, out uint64 total, out uint64 used);
+
 namespace PerformanceGaugeApplet
 {
 
@@ -116,37 +119,15 @@ internal class Monitor
         return false;
     }
 
-    public static bool get_mount_points(out Array<string> mount_points)
+    public static bool get_mount_points(out string[] mount_points)
     {
-        mount_points = new Array<string>();
-
-        string stdout;
-        string stderr;
-        int status;
-
-        try {
-            Process.spawn_command_line_sync("df", out stdout, out stderr, out status);
-        } catch (SpawnError e) {
+        var buffer = new char[4096];
+        if (get_mount_points_native(buffer, buffer.length) == 0) {
+            mount_points = new string[0];
             return false;
         }
 
-        Regex regex;
-        try {
-            regex = new Regex("[0-9]+\\s+[0-9]+\\s+[0-9]+\\s+[0-9]+\\%\\s+(.+)$");
-        }
-        catch (RegexError e) {
-            return false;
-        }
-
-        foreach (var line in stdout.split("\n")) {
-            MatchInfo m;
-            if (!regex.match(line, 0, out m)) {
-                continue;
-            }
-
-            mount_points.append_val(m.fetch(1));
-        }
-
+        mount_points = ((string)buffer).split("\n");
         return (mount_points.length != 0);
     }
 
@@ -154,17 +135,9 @@ internal class Monitor
     {
         total = 0;
         used  = 0;
-
-        Posix.statvfs stat;
-        if (Posix.statvfs_exec(mount_point, out stat) != 0) {
+        if (get_storage_usage_native(mount_point, out total, out used) == 0) {
             return false;
         }
-
-        total = (uint64)stat.f_blocks * stat.f_bsize;
-        used  = total - (uint64)stat.f_bfree * stat.f_bsize;
-
-        total = (uint64)Math.round(total / 1024.0);
-        used  = (uint64)Math.round(used  / 1024.0);
 
         return true;
     }
