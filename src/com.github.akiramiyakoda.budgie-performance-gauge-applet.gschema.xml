@@ -11,9 +11,14 @@
       <description>Update interval of the gauge in milliseconds.</description>
       <default>1000</default>
     </key>
-    <key type="i" name="memory-unit">
-      <summary>Memory unit</summary>
-      <description>Which unit is used to describe the memory usage. KiB, MiB or GiB.</description>
+    <key type="s" name="mount-point">
+      <summary>Mount point</summary>
+      <description>Which storage used as the source of the gauge.</description>
+      <default>""</default>
+    </key>
+    <key type="i" name="usage-unit">
+      <summary>Usage unit</summary>
+      <description>Which unit is used to describe the memory/storage usage. KiB, MiB or GiB.</description>
       <default>2</default>
     </key>
   </schema>

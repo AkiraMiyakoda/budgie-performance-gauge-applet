@@ -1,12 +1,13 @@
 namespace PerformanceGaugeApplet
 {
 
-internal const int MONITOR_TYPE_CPU    = 0;
-internal const int MONITOR_TYPE_MEMORY = 1;
+internal const int MONITOR_TYPE_CPU     = 0;
+internal const int MONITOR_TYPE_MEMORY  = 1;
+internal const int MONITOR_TYPE_STORAGE = 2;
 
-internal const int MEMORY_UNIT_KIB = 0;
-internal const int MEMORY_UNIT_MIB = 1;
-internal const int MEMORY_UNIT_GIB = 2;
+internal const int USAGE_UNIT_KIB = 0;
+internal const int USAGE_UNIT_MIB = 1;
+internal const int USAGE_UNIT_GIB = 2;
 
 public class Plugin : Budgie.Plugin, Peas.ExtensionBase
 {
@@ -27,8 +28,9 @@ public class Applet : Budgie.Applet
 
     private Settings settings;
 
-    private Budgie.Popover popover = null;
-    private unowned Budgie.PopoverManager manager = null;
+    private AppletSettings settings_ui;
+    private Budgie.Popover popover;
+    private unowned Budgie.PopoverManager manager;
 
     public Applet(string uuid) {
         Object(uuid: uuid);
@@ -50,8 +52,10 @@ public class Applet : Budgie.Applet
 
         this.add(this.applet_container);
 
+        this.settings_ui = new AppletSettings(this.settings);
+
         this.popover = new Budgie.Popover(this.applet_container);
-        this.popover.add(new AppletSettings(this.settings));
+        this.popover.add(this.settings_ui);
 
         this.applet_container.button_press_event.connect((e) => {
             if (e.button != 1) {
@@ -61,6 +65,7 @@ public class Applet : Budgie.Applet
             if (this.popover.get_visible()) {
                 this.popover.hide();
             } else {
+                this.settings_ui.update_mount_points();
                 this.manager.show_popover(this.applet_container);
             }
 
@@ -95,6 +100,9 @@ public class Applet : Budgie.Applet
         case MONITOR_TYPE_MEMORY:
             update_memory_gauge();
             break;
+        case MONITOR_TYPE_STORAGE:
+            update_storage_gauge();
+            break;
         default:
             this.gauge_widget.set_percent(0.0);
             this.gauge_widget.set_tooltip_text(null);
@@ -126,17 +134,17 @@ public class Applet : Budgie.Applet
             return;
         }
 
-        var memory_unit = this.settings.get_int("memory-unit");
+        var usage_unit = this.settings.get_int("usage-unit");
         double unit_div;
         string unit_label;
         string tooltip_format;
-        switch (memory_unit) {
-        case MEMORY_UNIT_KIB:
+        switch (usage_unit) {
+        case USAGE_UNIT_KIB:
             unit_div   = 1.0;
             unit_label = "KiB";
             tooltip_format = "%.0f / %.0f %s (%.1f%%)";
             break;
-        case MEMORY_UNIT_MIB:
+        case USAGE_UNIT_MIB:
             unit_div   = 1024.0;
             unit_label = "MiB";
             tooltip_format = "%.1f / %.1f %s (%.1f%%)";
@@ -153,17 +161,45 @@ public class Applet : Budgie.Applet
         this.gauge_widget.set_tooltip_text(tooltip_format.printf(used / unit_div, total / unit_div, unit_label, percent));
     }
 
-    //  public override bool supports_settings()
-    //  {
-    //      return false;
-    //  }
+    private void update_storage_gauge()
+    {
+        var mount_point = this.settings.get_string("mount-point");
+        uint64 total, used;
+        if (!Monitor.get_storage_usage(mount_point, out total, out used)) {
+            this.gauge_widget.set_percent(0.0);
+            this.gauge_widget.set_tooltip_text(null);
+            return;
+        }
 
-    //  public override Gtk.Widget? get_settings_ui()
-    //  {
-    //      return new AppletSettings(this.get_applet_settings(uuid));
-    //  }
+        var usage_unit = this.settings.get_int("usage-unit");
+        double unit_div;
+        string unit_label;
+        string tooltip_format;
+        switch (usage_unit) {
+        case USAGE_UNIT_KIB:
+            unit_div   = 1.0;
+            unit_label = "KiB";
+            tooltip_format = "%s\n%.0f / %.0f %s (%.1f%%)";
+            break;
+        case USAGE_UNIT_MIB:
+            unit_div   = 1024.0;
+            unit_label = "MiB";
+            tooltip_format = "%s\n%.1f / %.1f %s (%.1f%%)";
+            break;
+        default:
+            unit_div   = 1048576.0;
+            unit_label = "GiB";
+            tooltip_format = "%s\n%.1f / %.1f %s (%.1f %%)";
+            break;
+        }
 
-    public override void update_popovers(Budgie.PopoverManager? manager) {
+        var percent = used * 100.0 / total;
+        this.gauge_widget.set_percent(percent);
+        this.gauge_widget.set_tooltip_text(tooltip_format.printf(mount_point, used / unit_div, total / unit_div, unit_label, percent));
+    }
+
+    public override void update_popovers(Budgie.PopoverManager? manager)
+    {
         this.manager = manager;
         this.manager.register_popover(this.applet_container, this.popover);
     }

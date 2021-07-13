@@ -102,6 +102,76 @@ internal class Monitor
         return true;
     }
 
+    public static bool get_mount_points(out Array<string> mount_points)
+    {
+        mount_points = new Array<string>();
+
+        string stdout;
+        string stderr;
+        int status;
+
+        try {
+            Process.spawn_command_line_sync("df", out stdout, out stderr, out status);
+        } catch (SpawnError e) {
+            return false;
+        }
+
+        Regex regex;
+        try {
+            regex = new Regex("[0-9]+\\s+[0-9]+\\s+[0-9]+\\s+[0-9]+\\%\\s+(.+)$");
+        }
+        catch (RegexError e) {
+            return false;
+        }
+
+        foreach (var line in stdout.split("\n")) {
+            MatchInfo m;
+            if (!regex.match(line, 0, out m)) {
+                continue;
+            }
+
+            mount_points.append_val(m.fetch(1));
+        }
+
+        return (mount_points.length != 0);
+    }
+
+    public static bool get_storage_usage(string mount_point, out uint64 total, out uint64 used)
+    {
+        total = 0;
+        used  = 0;
+
+        string stdout;
+        string stderr;
+        int status;
+
+        try {
+            Process.spawn_command_line_sync("df '%s'".printf(mount_point), out stdout, out stderr, out status);
+        } catch (SpawnError e) {
+            return false;
+        }
+
+        Regex regex;
+        try {
+            regex = new Regex("[0-9]+\\s+([0-9]+)\\s+([0-9]+)\\s+[0-9]+\\%\\s+.+$");
+        }
+        catch (RegexError e) {
+            return false;
+        }
+
+        foreach (var line in stdout.split("\n")) {
+            MatchInfo m;
+            if (!regex.match(line, 0, out m)) {
+                continue;
+            }
+
+            used  = uint64.parse(m.fetch(1));
+            total = used + uint64.parse(m.fetch(2));
+        }
+
+        return (total != 0);
+    }
+
     private static string read_entire_file(string path)
     {
         var stream = FileStream.open(path, "r");
