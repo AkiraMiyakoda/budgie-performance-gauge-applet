@@ -166,11 +166,11 @@ public class Applet : Budgie.Applet
 
         switch (usage_unit) {
         case USAGE_UNIT_KIB:
-            return "%llu / %llu KiB (%.1f%%)".printf(used, total, used * 100.0 / total);
+            return "%'llu / %'llu KiB (%.1f%%)".printf(used, total, used * 100.0 / total);
         case USAGE_UNIT_MIB:
-            return "%.1f / %.1f MiB (%.1f%%)".printf(used / 1024.0, total / 1024.0, used * 100.0 / total);
+            return "%'.1f / %'.1f MiB (%.1f%%)".printf(used / 1024.0, total / 1024.0, used * 100.0 / total);
         default:
-            return "%.1f / %.1f GiB (%.1f%%)".printf(used / 1048576.0, total / 1048576.0, used * 100.0 / total);
+            return "%'.1f / %'.1f GiB (%.1f%%)".printf(used / 1048576.0, total / 1048576.0, used * 100.0 / total);
         }
     }
 
