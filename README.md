@@ -11,7 +11,7 @@ meson
 valac
 libgtk-3-dev >= 3.24.0
 libpeas-dev >= 1.26.0
-budgie >= 1
+budgie-core-dev >= 1.0
 ```
 
 ## Installation
