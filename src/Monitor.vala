@@ -98,7 +98,7 @@ internal class Monitor
         }
 
         uint64 mem_total = uint64.MAX;
-        uint64 mem_free  = uint64.MAX;
+        uint64 mem_avail = uint64.MAX;
         foreach (var line in meminfo.split("\n")) {
             MatchInfo m;
             if (!regex.match(line, 0, out m)) {
@@ -108,13 +108,13 @@ internal class Monitor
             if (m.fetch(1) == "MemTotal") {
                 mem_total = uint64.parse(m.fetch(2));
             }
-            else if (m.fetch(1) == "MemFree") {
-                mem_free = uint64.parse(m.fetch(2));
+            else if (m.fetch(1) == "MemAvailable") {
+                mem_avail = uint64.parse(m.fetch(2));
             }
 
-            if (mem_total != uint64.MAX && mem_free != uint64.MAX) {
+            if (mem_total != uint64.MAX && mem_avail != uint64.MAX) {
                 total = mem_total;
-                used  = mem_total - mem_free;
+                used  = mem_total - mem_avail;
                 return true;
             }
         }
