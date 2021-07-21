@@ -7,7 +7,7 @@ extern int get_mount_points_native(out unowned string buffer);
 
 extern void free_mount_points_native(string buffer);
 
-extern int get_storage_usage_native(string mout_point, out uint64 total, out uint64 used);
+extern int get_storage_usage_native(string mount_point, out uint64 total, out uint64 used);
 
 namespace PerformanceGaugeApplet
 {
