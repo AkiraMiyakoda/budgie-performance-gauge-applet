@@ -3,11 +3,11 @@
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
 
-extern int get_mount_points_native(out unowned string buffer);
+extern bool get_mount_points_native(out unowned string buffer);
 
 extern void free_mount_points_native(string buffer);
 
-extern int get_storage_usage_native(string mount_point, out uint64 total, out uint64 used);
+extern bool get_storage_usage_native(string mount_point, out uint64 total, out uint64 used);
 
 namespace PerformanceGaugeApplet
 {
@@ -125,7 +125,7 @@ internal class Monitor
     public static bool get_mount_points(out string[] mount_points)
     {
         unowned string buffer;
-        if (get_mount_points_native(out buffer) == 0) {
+        if (!get_mount_points_native(out buffer)) {
             mount_points = new string[0];
             return false;
         }
@@ -138,13 +138,7 @@ internal class Monitor
 
     public static bool get_storage_usage(string mount_point, out uint64 total, out uint64 used)
     {
-        total = 0;
-        used  = 0;
-        if (get_storage_usage_native(mount_point, out total, out used) == 0) {
-            return false;
-        }
-
-        return true;
+        return get_storage_usage_native(mount_point, out total, out used);
     }
 
     private static string read_entire_file(string path)

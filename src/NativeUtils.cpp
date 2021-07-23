@@ -4,15 +4,15 @@
 // https://opensource.org/licenses/MIT
 
 #include <cmath>
-#include <cstdint>
 #include <cstring>
 #include <string>
 #include <mntent.h>
 #include <sys/statvfs.h>
+#include <glib.h>
 
 extern "C" {
 
-int get_mount_points_native(char **buffer)
+gboolean get_mount_points_native(gchar **buffer)
 {
     // List all the mount points except for read-only or zero-capacity ones.
     std::string points;
@@ -20,7 +20,7 @@ int get_mount_points_native(char **buffer)
 
     const auto file = ::setmntent("/etc/mtab", "r");
     if (!file) {
-        return 0;
+        return FALSE;
     }
 
     struct mntent *e;
@@ -40,36 +40,39 @@ int get_mount_points_native(char **buffer)
     ::endmntent(file);
 
     if (points.empty()) {
-        return 0;
+        return FALSE;
     }
 
     points.pop_back();
 
-    *buffer = new char[ points.size() + 1 ];
+    *buffer = new gchar[ points.size() + 1 ];
     ::strcpy(*buffer, points.c_str());
 
-    return 1;
+    return TRUE;
 }
 
-void free_mount_points_native(char *buffer)
+void free_mount_points_native(gchar *buffer)
 {
     delete [] buffer;
 }
 
-int get_storage_usage_native(const char *mount_point, uint64_t *total, uint64_t *used)
+gboolean get_storage_usage_native(const gchar *mount_point, guint64 *total, guint64 *used)
 {
+    *total = 0;
+    *used  = 0;
+
     struct statvfs64 stat;
     if (::statvfs64(mount_point, &stat) != 0) {
-        return 0;
+        return FALSE;
     }
 
     const auto total_bytes = stat.f_blocks * stat.f_bsize;
     const auto used_bytes  = total_bytes - stat.f_bfree * stat.f_bsize;
 
-    *total = static_cast<uint64_t>(std::round(total_bytes / 1024.0));
-    *used  = static_cast<uint64_t>(std::round(used_bytes  / 1024.0));
+    *total = static_cast<guint64>(std::round(total_bytes / 1024.0));
+    *used  = static_cast<guint64>(std::round(used_bytes  / 1024.0));
 
-    return 1;
+    return TRUE;
 }
 
 }
