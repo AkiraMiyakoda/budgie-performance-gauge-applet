@@ -79,7 +79,6 @@ public class Applet : Budgie.Applet
         });
 
         this.update_all();
-        this.popover.get_child().show_all();
         this.show_all();
     }
 
