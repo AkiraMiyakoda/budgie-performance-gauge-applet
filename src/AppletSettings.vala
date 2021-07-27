@@ -16,8 +16,10 @@ internal class AppletSettings : Gtk.Box
 
     private Gtk.ComboBoxText combobox_monitor;
     private Gtk.SpinButton   spinbutton_interval;
+    private Gtk.Box          box_mount_point;
     private Gtk.ComboBoxText combobox_mount_point;
     private Gtk.Entry        entry_mount_point;
+    private Gtk.Box          box_usage_unit;
     private Gtk.ComboBoxText combobox_usage_unit;
 
     public AppletSettings(Settings settings)
@@ -86,17 +88,17 @@ internal class AppletSettings : Gtk.Box
             this.combobox_mount_point.halign = Gtk.Align.END;
             this.combobox_mount_point.valign = Gtk.Align.CENTER;
             this.combobox_mount_point.can_focus = false;
-            this.combobox_mount_point.sensitive = false;
 
             this.entry_mount_point = (Gtk.Entry)this.combobox_mount_point.get_child();
+            this.entry_mount_point.placeholder_text = _ ("Choose...");
             this.entry_mount_point.can_focus = false;
             this.update_mount_points();
 
-            var box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, HORIZONTAL_SPACING);
-            box.pack_start(label);
-            box.pack_start(this.combobox_mount_point);
+            this.box_mount_point = new Gtk.Box(Gtk.Orientation.HORIZONTAL, HORIZONTAL_SPACING);
+            this.box_mount_point.pack_start(label);
+            this.box_mount_point.pack_start(this.combobox_mount_point);
 
-            this.pack_start(box);
+            this.pack_start(this.box_mount_point);
         }
 
         {
@@ -109,7 +111,6 @@ internal class AppletSettings : Gtk.Box
             this.combobox_usage_unit.halign = Gtk.Align.END;
             this.combobox_usage_unit.valign = Gtk.Align.CENTER;
             this.combobox_usage_unit.can_focus = false;
-            this.combobox_usage_unit.sensitive = false;
 
             this.combobox_usage_unit.append_text(_ ("KiB"));
             this.combobox_usage_unit.append_text(_ ("MiB"));
@@ -120,19 +121,21 @@ internal class AppletSettings : Gtk.Box
             entry.width_chars = 4;
             entry.can_focus = false;
 
-            var box = new Gtk.Box(Gtk.Orientation.HORIZONTAL, HORIZONTAL_SPACING);
-            box.pack_start(label);
-            box.pack_start(this.combobox_usage_unit);
+            this.box_usage_unit = new Gtk.Box(Gtk.Orientation.HORIZONTAL, HORIZONTAL_SPACING);
+            this.box_usage_unit.pack_start(label);
+            this.box_usage_unit.pack_start(this.combobox_usage_unit);
 
-            this.pack_start(box);
+            this.pack_start(this.box_usage_unit);
         }
 
         this.settings.bind("monitor-type",    this.combobox_monitor,    "active", SettingsBindFlags.DEFAULT);
         this.settings.bind("update-interval", this.spinbutton_interval, "value",  SettingsBindFlags.DEFAULT);
         this.settings.bind("mount-point",     this.entry_mount_point,   "text",   SettingsBindFlags.DEFAULT);
-        this.settings.bind("usage-unit",     this.combobox_usage_unit, "active", SettingsBindFlags.DEFAULT);
+        this.settings.bind("usage-unit",      this.combobox_usage_unit, "active", SettingsBindFlags.DEFAULT);
 
         this.settings.changed.connect(this.on_settings_change);
+
+        this.show_all();
         this.on_settings_change("monitor-type");
     }
 
@@ -165,8 +168,8 @@ internal class AppletSettings : Gtk.Box
     {
         if (key == "monitor-type") {
             var type = this.settings.get_int(key);
-            this.combobox_mount_point.sensitive = (type == MONITOR_TYPE_STORAGE);
-            this.combobox_usage_unit.sensitive  = (type == MONITOR_TYPE_MEMORY || type == MONITOR_TYPE_STORAGE);
+            this.box_mount_point.visible = (type == MONITOR_TYPE_STORAGE);
+            this.box_usage_unit.visible  = (type == MONITOR_TYPE_MEMORY || type == MONITOR_TYPE_STORAGE);
         }
     }
 }
