@@ -23,3 +23,9 @@ cd build/
 ninja
 sudo ninja install
 ```
+
+**From PPA (Ubuntu Budgie 20.04, 21.04 & 21.10)**
+```
+sudo add-apt-repository ppa:ubuntubudgie/backports
+sudo apt install budgie-performance-gauge-applet
+```
